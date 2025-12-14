@@ -34,32 +34,24 @@
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
-</body>
-<script>
+  <script>
   let _handler = null;
 
-  async function requestMotionPermissionIfNeeded() {
+  async function requestMotionPermission() {
     if (typeof DeviceMotionEvent !== "undefined" &&
         typeof DeviceMotionEvent.requestPermission === "function") {
       const res = await DeviceMotionEvent.requestPermission();
-      if (res !== "granted") {
-        throw new Error("Motion permission denied");
-      }
-    }
-    if (typeof DeviceMotionEvent === "undefined") {
-      throw new Error("Not supported on PC browsers. Please use a smartphone browser.");
+      if (res !== "granted") throw new Error("Motion permission denied");
     }
   }
 
   function startMotion(onData) {
     stopMotion();
-
     _handler = (e) => {
       const a = e.accelerationIncludingGravity;
       if (!a) return;
       onData(a.x ?? 0, a.y ?? 0, a.z ?? 0, Date.now());
     };
-
     window.addEventListener("devicemotion", _handler, { passive: true });
   }
 
@@ -70,12 +62,11 @@
     }
   }
 
-  window.PedometerWeb = {
-    requestMotionPermissionIfNeeded,
+  window.ManpoKei = {
+    requestMotionPermission,
     startMotion,
     stopMotion
   };
-</script>
-
-
+  </script>
+</body>
 </html>
