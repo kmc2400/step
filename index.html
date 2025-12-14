@@ -45,8 +45,9 @@
       if (res !== "granted") {
         throw new Error("Motion permission denied");
       }
-    } else {
-      throw new Error("Not found: DeviceMotionEvent.requestPermission");
+    }
+    if (typeof DeviceMotionEvent === "undefined") {
+      throw new Error("Not supported on PC browsers. Please use a smartphone browser.");
     }
   }
 
