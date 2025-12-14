@@ -36,23 +36,45 @@
   <script src="flutter_bootstrap.js" async></script>
 </body>
 <script>
+  let _handler = null;
+
   async function requestMotionPermissionIfNeeded() {
     if (typeof DeviceMotionEvent !== "undefined" &&
         typeof DeviceMotionEvent.requestPermission === "function") {
       const res = await DeviceMotionEvent.requestPermission();
-      if (res !== "granted") throw new Error("Motion permission denied");
+      if (res !== "granted") {
+        throw new Error("Motion permission denied");
+      }
+    } else {
+      throw new Error("Not found: DeviceMotionEvent.requestPermission");
     }
   }
 
   function startMotion(onData) {
-    window.addEventListener("devicemotion", (e) => {
+    stopMotion();
+
+    _handler = (e) => {
       const a = e.accelerationIncludingGravity;
-      const t = Date.now();
       if (!a) return;
-      onData(a.x ?? 0, a.y ?? 0, a.z ?? 0, t);
-    }, { passive: true });
+      onData(a.x ?? 0, a.y ?? 0, a.z ?? 0, Date.now());
+    };
+
+    window.addEventListener("devicemotion", _handler, { passive: true });
   }
 
-  window.PedometerWeb = { requestMotionPermissionIfNeeded, startMotion };
+  function stopMotion() {
+    if (_handler) {
+      window.removeEventListener("devicemotion", _handler);
+      _handler = null;
+    }
+  }
+
+  window.PedometerWeb = {
+    requestMotionPermissionIfNeeded,
+    startMotion,
+    stopMotion
+  };
 </script>
+
+
 </html>
